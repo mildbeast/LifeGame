@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridLayout;
 
@@ -19,23 +19,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = "MainActivity";
 
     MainPresenter mGC;
-    static final int ROW_NUM = 20;
-    static final int COLUMN_NUM = 20;
     GridItem[][] gridItems;
     FloatingActionButton fab;
-
-    private DisplayMetrics getDisplayMetrics() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        Log.d(TAG, "density = " + metrics.density);
-        Log.d(TAG, "densityDpi = " + metrics.densityDpi);
-        Log.d(TAG, "widthPixels = " + metrics.widthPixels);
-        Log.d(TAG, "heightPixels = " + metrics.heightPixels);
-        Log.d(TAG, "scaledDensity = " + metrics.scaledDensity);
-        Log.d(TAG, "xdpi = " + metrics.xdpi);
-        Log.d(TAG, "ydpi = " + metrics.ydpi);
-        return metrics;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "FloatingActionButton onClick");
                 mGC.toggleGame();
             }
         });
@@ -101,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         gl.setOrientation(GridLayout.HORIZONTAL);
         gl.setBackgroundColor(Color.GRAY);
-
-        DisplayMetrics metrics = getDisplayMetrics();
+        ViewGroup.LayoutParams glparam = gl.getLayoutParams();
+        Log.d(TAG, "GridLayout width = " + glparam.width);
+        Log.d(TAG, "GridLayout height = " + glparam.height);
 
         gridItems = new GridItem[board.row][board.col];
         for(int i=0; i < gridItems.length; i++){
@@ -114,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
                     public void onClick(View v) {
                         GridItem gridItem = (GridItem) v;
                         gridItem.cell.toggleState();
+                        Log.d(TAG, "gridItems onClick: " + gridItem.toString());
                     }
                 });
 
@@ -122,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
                         GridLayout.spec(j, GridLayout.CENTER)
                 );
                 param.setGravity(Gravity.FILL);
-                param.width = (int)(18 * metrics.density);
-                param.height = (int)(18 * metrics.density);
-                param.setMargins(2,2,1,1);
+                param.width = glparam.width / board.col - 2;
+                param.height = glparam.height / board.row - 2;
+                param.setMargins(1,1,1,1);
                 gl.addView(gridItems[i][j],param);
             }
         }
