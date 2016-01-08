@@ -7,14 +7,13 @@ import java.util.List;
  * Created by w21677 on 12/18/2015.
  */
 public class Board {
-    private int col;
-    private int row;
+    public int col;
+    public int row;
     private Cell[][] cells;
-    private static Rule rule = new Rule();
-    private CellUpdater cellUpdater;
+    private MainView view;
 
-    public Board(int r, int c, CellUpdater cu){
-        cellUpdater = cu;
+    public Board(int r, int c, MainView v){
+        view = v;
         initCells(r, c);
     }
 
@@ -25,7 +24,7 @@ public class Board {
 
         for(int i=0; i < cells.length; i++){
             for(int j=0; j < cells[0].length; j++){
-                cells[i][j] = new Cell(i, j, rule, cellUpdater);
+                cells[i][j] = new Cell(i, j, view);
             }
         }
 
@@ -43,10 +42,6 @@ public class Board {
                 cells[i][j].setNeighbor(neighbor);
             }
         }
-    }
-
-    public void toggleCell(int x, int y){
-        cells[x][y].toggleState();
     }
 
     public void update(){
@@ -74,5 +69,4 @@ public class Board {
     public Cell getCell(int x, int y){
         return cells[x][y];
     }
-
 }

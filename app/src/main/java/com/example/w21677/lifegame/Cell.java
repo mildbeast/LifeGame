@@ -9,15 +9,13 @@ public class Cell {
     private boolean currentState;
     private boolean nextState;
     private List<Cell> neighbor;
-    private Rule rule;
-    private CellUpdater cellUpdater;
+    private MainView view;
     private int row, col;
 
-    public Cell(int i, int j, Rule r, CellUpdater cu){
+    public Cell(int i, int j, MainView v){
         row = i;
         col = j;
-        rule = r;
-        cellUpdater = cu;
+        view = v;
         currentState = false;
         nextState = false;
     }
@@ -27,34 +25,38 @@ public class Cell {
     }
 
     public void setNextState() {
-        nextState = rule.nextState(currentState, neighbor);
+        nextState = false;
+        int count = 0;
+        for(Cell c : neighbor){
+            if(c.getCurrentState()) count++;
+        }
+
+        if(currentState){
+            if(count == 2 || count == 3) nextState = true;
+        }else{
+            if(count == 3) nextState = true;
+        }
     }
 
     public void updateToNext(){
-        currentState = nextState;
-        cellUpdater.update(this);
+        updateCell(nextState);
     }
 
     public void toggleState() {
-        currentState = !currentState;
-        cellUpdater.update(this);
+        updateCell(!currentState);
     }
 
     public void reset() {
-        currentState = false;
         nextState = false;
-        cellUpdater.update(this);
+        updateCell(false);
     }
 
     public boolean getCurrentState() {
         return currentState;
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getCol() {
-        return col;
+    private void updateCell(boolean state) {
+        currentState = state;
+        view.updateGridItem(row, col, currentState);
     }
 }

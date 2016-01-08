@@ -8,14 +8,17 @@ import android.util.Log;
 /**
  * Created by w21677 on 12/18/2015.
  */
-public class GameControl {
+public class GameControl implements MainPresenter {
     private static final String TAG = "GameControl";
     private static final int TICK_MS = 500;
+    private static final int ROW_NUM = 20;
+    private static final int COLUMN_NUM = 20;
 
     private Board board;
     private boolean running;
     private TimerThread mTimerThread;
     private Handler mHandler;
+    private MainView view;
 
     class TimerThread extends Thread{
         Handler mHandler;
@@ -38,9 +41,11 @@ public class GameControl {
         }
     }
 
-    public GameControl(Board b){
-        board = b;
+    public GameControl(MainView v){
+        view = v;
+        board = new Board(ROW_NUM, COLUMN_NUM, view);
         running = false;
+        v.initGrid(board);
 
         mHandler = new Handler(){
             @Override
@@ -51,20 +56,22 @@ public class GameControl {
         };
     }
 
-    public void reset(){
+    public void resetGame(){
         if(running) return;
         board.reset();
     }
 
-    public void start(){
-        running = true;
-        mTimerThread = new TimerThread(mHandler);
-        mTimerThread.start();
-        Log.d(TAG, "Game started.");
-    }
-
-    public void pause(){
-        running = false;
-        Log.d(TAG, "Game paused.");
+    @Override
+    public void toggleGame() {
+        running = !running;
+        if(running){
+            mTimerThread = new TimerThread(mHandler);
+            mTimerThread.start();
+            Log.d(TAG, "Game started.");
+            view.started();
+        }else{
+            Log.d(TAG, "Game paused.");
+            view.paused();
+        }
     }
 }
